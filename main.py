@@ -2,7 +2,9 @@ import easyocr
 import cv2
 import numpy as np
 
-vidcap = cv2.VideoCapture('/mnt/c/Users/Edgar/Downloads/videoplayback.webm')
+vidcap = cv2.VideoCapture("C:\\Users\\Edgar\\Documents\\Code Projects\\Pokemon Stadium OCR Project\\Videos\\Twitch "
+                          "Livestream _ Pokémon Stadium 2 Rental Randomizer - Season 2 Part 1 ["
+                          "Switch]-pD3_wqoaxYs.webm")
 reader = easyocr.Reader(['en'])
 
 # result = reader.readtext('/mnt/c/Users/Edgar/Desktop/test_image3.png', detail=0)
@@ -10,7 +12,7 @@ reader = easyocr.Reader(['en'])
 
 # Frame in which the battles start, just to make things more efficient than scanning the whole VOD.
 # This is considering the VOD is a 60 FPS video.
-start = 12600
+start = 25200
 count = 0
 
 fps_in = vidcap.get(cv2.CAP_PROP_FPS)  # Grab the video's frame rate.
@@ -59,7 +61,7 @@ while success:
         if not success:
             break
         index_out += 1
-        cropped_frame = frame[800:1000, 630:1750]  # Crop only the game screen
+        cropped_frame = frame[750:1000, 630:1750]  # Crop only the game screen
         result = reader.readtext(cropped_frame, detail=0)
         if 0 < len(result) < 4:
             print('Read frame ' + str(count))
@@ -74,7 +76,8 @@ while success:
                 'burn': False,
                 'sleep': False,
                 'one_hit_ko': False,
-                'confused_self_hit': False
+                'confused_self_hit': False,
+                'berry': False
             }
             for detected_text in result:
                 detected_event = ''
@@ -114,6 +117,10 @@ while success:
                     print("Found a confused self-hit!")
                     events['confused_self_hit'] = True
                     detected_event = "confused_self_hit"
+                elif 'erry' in detected_text:
+                    print("Found a berry proc!")
+                    events['berry'] = True
+                    detected_event = "berry"
                 if detected_event:
                     (b, g, r) = frame[900, 1190]
                     if b > g:
@@ -128,7 +135,7 @@ while success:
                 for event in events:
                     if events[event]:
                         events_string += event
-                cv2.imwrite("frame{0}-milis{1}-{2}.jpg".format(count, milis, events_string), cropped_frame)
+                cv2.imwrite("./Screenshots/" + "frame{0}-milis{1}-{2}.jpg".format(count, milis, events_string), cropped_frame)
             success, frame = vidcap.retrieve()
             index_out += 1
         count += 1
