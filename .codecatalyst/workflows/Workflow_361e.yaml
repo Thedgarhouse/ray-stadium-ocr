@@ -1,0 +1,31 @@
+Name: Workflow_361e
+SchemaVersion: "1.0"
+
+# Optional - Set automatic triggers.
+Triggers:
+  - Type: Push
+    Branches:
+      - main
+
+# Required - Define action configurations.
+Actions:
+  PushToAmazonECR_2a:
+    # Identifies the action. Do not modify this value.
+    Identifier: codecatalyst-labs/push-to-ecr@v1.0.3
+    # Required; You can use an environment, AWS account connection, and role to access AWS resources.
+    Environment:
+      Connections:
+        - Role: CodeCatalystWorkflowDevelopmentRole-ray-stadium-ocr
+          Name: "171934572036"
+      Name: dev-environment
+    # Specifies the source and/or artifacts to pass to the action as input.
+    Inputs:
+      # Optional
+      Sources:
+        - WorkflowSource # This specifies that the action requires this Workflow as a source
+    Compute:
+      Type: EC2 # Defines the action's properties.
+    Configuration:
+      RepositoryName: ray-stadium-ocr-image-repo
+      PublicRepository: false
+      ImageScanningConfiguration: true
