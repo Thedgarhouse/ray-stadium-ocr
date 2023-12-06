@@ -1,14 +1,30 @@
 import easyocr
 import cv2
 import numpy as np
+import argparse
+import youtube_dl
 
-vidcap = cv2.VideoCapture("C:\\Users\\Edgar\\Documents\\Code Projects\\Pokemon Stadium OCR Project\\Videos\\Twitch "
-                          "Livestream _ Pokémon Stadium 2 Rental Randomizer - Season 2 Part 1 ["
-                          "Switch]-pD3_wqoaxYs.webm")
+ydl_opts = {}
+parser = argparse.ArgumentParser(description='Process video or stream for Pokemon Stadium events.')
+parser.add_argument('--mode', choices=['video', 'stream'], dest='mode', required=True,
+                    help='Processing mode (either local video or live stream')
+parser.add_argument('--url', dest='url', help='URL for the video or live stream to process',
+                    required=True)
+args = parser.parse_args()
+
+
+if args.mode == 'video':
+    ydl_opts = {
+        'format': 'bestvideo/best',
+        'keepvideo': True,
+        'outtmpl': '/tmp/video.webm',
+        'cachedir': '/tmp/cache'
+    }
+with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+    ydl.download([args.url])
+
+vidcap = cv2.VideoCapture("/tmp/video.webm")
 reader = easyocr.Reader(['en'])
-
-# result = reader.readtext('/mnt/c/Users/Edgar/Desktop/test_image3.png', detail=0)
-# print(result)
 
 # Frame in which the battles start, just to make things more efficient than scanning the whole VOD.
 # This is considering the VOD is a 60 FPS video.
